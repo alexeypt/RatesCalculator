@@ -5,15 +5,15 @@ import {
     type DepositResult,
     type DetailPeriod,
     type PeriodDetail
-} from '@/types/deposit';
+} from './types';
+import { isCapitalizationBoundary } from './capitalization';
 import {
     addTerm,
     daysInYear,
-    isCapitalizationBoundary,
     parseISODate,
     roundMoney,
     toISODate
-} from '@/engine/dateUtils';
+} from '../core';
 
 /**
  * Validate that a float rate schedule fully covers every accrual day in

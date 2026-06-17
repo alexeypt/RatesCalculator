@@ -101,16 +101,29 @@ To expose the container directly instead (no proxy), change the port mapping in 
 
 ## Project structure
 
+This is an npm-workspaces monorepo: the reusable calculation logic lives in a
+standalone `rates-calculator` package, and the web app consumes it.
+
 ```
-src/
-  engine/        Pure, framework-agnostic calculation engine + unit tests
-  components/    React UI components (form, editors, results, chart, table)
-  utils/         Formatting, CSV export, theme helpers
-  i18n/          i18next setup and en/ru translation resources
-  types/         Shared TypeScript types
-public/          Static assets (favicon, PWA icons)
-Dockerfile       Multi-stage build (Node → Nginx)
-nginx.conf       SPA-aware Nginx config (history fallback, caching, gzip)
+packages/
+  rates-calculator/   Reusable, framework-agnostic calculation library
+    src/core/         Money rounding, date/term helpers, shared types
+    src/deposits/     Deposit calculator, capitalization, validation + unit tests
+src/                  Web app (deposit-calculator-web)
+  components/         React UI components (form, editors, results, chart, table)
+  utils/              Formatting, CSV export, theme helpers
+  i18n/               i18next setup and en/ru translation resources
+  types/              Shared app-level TypeScript types
+public/               Static assets (favicon, PWA icons, robots.txt)
+Dockerfile            Multi-stage build (Node → Nginx)
+nginx.conf            SPA-aware Nginx config (history fallback, caching, gzip)
+```
+
+The app imports the library via its package name:
+
+```ts
+import { calculateDeposit } from 'rates-calculator/deposits';
+import { parseISODate } from 'rates-calculator';
 ```
 
 ## How the engine works

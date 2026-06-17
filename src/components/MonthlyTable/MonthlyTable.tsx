@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import type { DetailPeriod, PeriodDetail } from '@/types/deposit';
+import type { DetailPeriod, PeriodDetail } from 'rates-calculator/deposits';
 import { formatMoney, formatPeriodLabel } from '@/utils/format';
 import styles from '@/components/MonthlyTable/MonthlyTable.module.css';
 

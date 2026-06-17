@@ -1,12 +1,17 @@
 {
-  "name": "rates-calculator",
-  "private": true,
-  "version": "0.1.0",
+  "name": "rates-calculator-web",
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
+    "dev": "npm run build:lib && vite",
+    "dev:lib": "npm run dev --workspace rates-calculator",
+    "build:lib": "npm run build --workspace rates-calculator",
+    "build": "npm run build:lib && tsc -b && vite build",
+    "preview": "npm run build:lib && vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc --noEmit",
@@ -17,6 +22,7 @@
     "date-fns": "^4.1.0",
     "i18next": "^25.2.1",
     "i18next-browser-languagedetector": "^8.2.0",
+    "rates-calculator": "*",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-i18next": "^15.5.3",

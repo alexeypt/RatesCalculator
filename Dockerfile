@@ -5,10 +5,12 @@ FROM node:22-alpine AS build
 WORKDIR /app
 
 # Install dependencies first to leverage Docker layer caching.
+# Copy the workspace manifests so npm can resolve the workspace graph during install.
 COPY package.json package-lock.json ./
+COPY packages/rates-calculator/package.json ./packages/rates-calculator/package.json
 RUN npm ci
 
-# Copy the rest of the source and build the production bundle.
+# Copy the rest of the source and build the production bundle (library first, then app).
 COPY . .
 RUN npm run build
 

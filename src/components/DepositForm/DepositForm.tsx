@@ -10,7 +10,7 @@ import type {
     RecurringWithdrawal,
     TermUnit,
     WithdrawalType
-} from '@/types/deposit';
+} from 'rates-calculator/deposits';
 import { FloatScheduleEditor } from '@/components/FloatScheduleEditor/FloatScheduleEditor';
 import { AdditionsEditor } from '@/components/AdditionsEditor/AdditionsEditor';
 import { WithdrawalsEditor } from '@/components/WithdrawalsEditor/WithdrawalsEditor';

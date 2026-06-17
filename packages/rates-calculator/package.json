@@ -1,0 +1,39 @@
+{
+  "name": "rates-calculator",
+  "version": "1.0.0",
+  "description": "Framework-agnostic engine for calculating returns on interest-bearing instruments (bank deposits today, bonds later).",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./deposits": {
+      "types": "./dist/deposits/index.d.ts",
+      "import": "./dist/deposits/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0"
+  },
+  "keywords": [
+    "finance",
+    "deposit",
+    "compound-interest",
+    "savings",
+    "calculator"
+  ]
+}

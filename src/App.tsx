@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { aggregateDetails, calculateDeposit } from '@/engine/calculator';
 import {
+    aggregateDetails,
+    calculateDeposit,
     DepositValidationError,
     type DepositInput,
     type DepositResult,
     type DetailPeriod,
     type Term
-} from '@/types/deposit';
+} from 'rates-calculator/deposits';
 import { DepositForm } from '@/components/DepositForm/DepositForm';
 import { ResultsSummary } from '@/components/ResultsSummary/ResultsSummary';
 import { MonthlyTable } from '@/components/MonthlyTable/MonthlyTable';

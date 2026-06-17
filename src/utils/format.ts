@@ -1,5 +1,5 @@
-import { parseISODate } from '@/engine/dateUtils';
-import type { DetailPeriod } from '@/types/deposit';
+import { parseISODate } from 'rates-calculator';
+import type { DetailPeriod } from 'rates-calculator/deposits';
 
 const localeMap: Record<string, string> = {
     en: 'en-US',

@@ -1,4 +1,4 @@
-import type { DetailPeriod, PeriodDetail } from '@/types/deposit';
+import type { DetailPeriod, PeriodDetail } from 'rates-calculator/deposits';
 
 /** Build a CSV string of the period-by-period details and trigger a download. */
 export function exportResultToCsv(

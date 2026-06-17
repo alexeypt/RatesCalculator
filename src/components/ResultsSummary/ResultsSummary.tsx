@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import type { DepositResult } from '@/types/deposit';
+import type { DepositResult } from 'rates-calculator/deposits';
 import { formatMoney, formatPercent, formatDate } from '@/utils/format';
 import styles from '@/components/ResultsSummary/ResultsSummary.module.css';
 

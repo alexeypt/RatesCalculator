@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { aggregateDetails, calculateDeposit, validateFloatSchedule } from '@/engine/calculator';
-import { isLeapYear, daysInYear, roundMoney, isCapitalizationBoundary } from '@/engine/dateUtils';
-import { DepositValidationError, type DepositInput } from '@/types/deposit';
-import { parseISODate } from '@/engine/dateUtils';
+import { aggregateDetails, calculateDeposit, validateFloatSchedule } from './calculator';
+import { isCapitalizationBoundary } from './capitalization';
+import { isLeapYear, daysInYear, roundMoney, parseISODate } from '../core';
+import { DepositValidationError, type DepositInput } from './types';
 
 function baseInput(overrides: Partial<DepositInput> = {}): DepositInput {
     return {

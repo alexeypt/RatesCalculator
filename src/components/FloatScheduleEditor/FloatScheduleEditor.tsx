@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import type { FloatRateSegment } from '@/types/deposit';
+import type { FloatRateSegment } from 'rates-calculator/deposits';
 import styles from '@/components/FloatScheduleEditor/FloatScheduleEditor.module.css';
 
 interface Props {

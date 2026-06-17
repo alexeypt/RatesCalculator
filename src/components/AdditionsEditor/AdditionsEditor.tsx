@@ -4,7 +4,7 @@ import type {
     OneTimeAddition,
     RecurringAddition,
     RecurringAdditionFrequency
-} from '@/types/deposit';
+} from 'rates-calculator/deposits';
 import styles from '@/components/Editors.module.css';
 
 interface Props {

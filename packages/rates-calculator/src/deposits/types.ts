@@ -1,6 +1,7 @@
-export type RateType = 'fixed' | 'float';
+export type { Term, TermUnit } from '../core/types';
+import type { Term } from '../core/types';
 
-export type TermUnit = 'days' | 'months' | 'years';
+export type RateType = 'fixed' | 'float';
 
 /**
  * Capitalization frequency presets.
@@ -25,11 +26,6 @@ export interface FloatRateSegment {
     to: string;
     /** Annual interest rate in percent, e.g. 7.5 for 7.5%. */
     rate: number;
-}
-
-export interface Term {
-    value: number;
-    unit: TermUnit;
 }
 
 /** How additional contributions to the deposit are modelled. */

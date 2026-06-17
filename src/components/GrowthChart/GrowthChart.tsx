@@ -8,7 +8,7 @@ import {
     XAxis,
     YAxis
 } from 'recharts';
-import type { DetailPeriod, PeriodDetail } from '@/types/deposit';
+import type { DetailPeriod, PeriodDetail } from 'rates-calculator/deposits';
 import { formatMoney, formatPeriodLabel } from '@/utils/format';
 import styles from '@/components/GrowthChart/GrowthChart.module.css';
 
