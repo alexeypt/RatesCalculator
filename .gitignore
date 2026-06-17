@@ -6,3 +6,4 @@ dist-ssr
 dev-dist
 *.log
 tsconfig.tsbuildinfo
+.vscode/mcp.json
