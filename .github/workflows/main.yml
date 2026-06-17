@@ -1,0 +1,18 @@
+on:
+  push:
+    branches:
+    - master
+    
+jobs:
+  deploy:
+    name: Deploy to prod
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run deploy script
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ vars.VPS_HOST }}
+        username: ${{ vars.VPS_USER }}
+        key: ${{ secrets.VPS_PRIVATE_KEY }}
+        script: bash ./rates-calculator-deploy-script.sh
+        command_timeout: 30m
