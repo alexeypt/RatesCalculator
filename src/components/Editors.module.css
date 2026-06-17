@@ -1,0 +1,27 @@
+.editor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.5rem 0.6rem;
+    align-items: end;
+    padding: 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel-2);
+}
+
+.row > button {
+    grid-column: 1 / -1;
+    justify-self: end;
+}

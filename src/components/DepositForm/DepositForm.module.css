@@ -1,0 +1,49 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.inlineGroup {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.inlineGroup input {
+    flex: 0 0 5rem;
+    width: auto;
+    min-width: 0;
+}
+
+.inlineGroup select {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+}
+
+.radioGroup {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.radio,
+.checkbox {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text);
+}
+
+.radio input,
+.checkbox input {
+    width: auto;
+    flex: 0 0 auto;
+}
+
+.capitalization {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}

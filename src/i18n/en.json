@@ -1,0 +1,138 @@
+{
+  "app": {
+    "title": "Deposit Calculator",
+    "subtitle": "Calculate interest, income and effective rate"
+  },
+  "form": {
+    "amount": "Deposit amount",
+    "startDate": "Start date",
+    "term": "Term",
+    "termUnit": {
+      "days": "Days",
+      "months": "Months",
+      "years": "Years"
+    },
+    "rateType": "Interest rate type",
+    "rateTypeFixed": "Fixed",
+    "rateTypeFloat": "Variable (by date ranges)",
+    "fixedRate": "Annual interest rate (%)",
+    "capitalization": "Capitalization (compound interest)",
+    "capFrequency": "Capitalization frequency",
+    "incomeTax": "Income tax (%)",
+    "calculate": "Calculate",
+    "frequency": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "twiceMonthly": "Twice a month (15th & month end)",
+      "thriceMonthly": "Three times a month (10th, 20th & month end)",
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "semiAnnual": "Semi-annual",
+      "annual": "Annual"
+    }
+  },
+  "float": {
+    "title": "Variable rate schedule",
+    "from": "From",
+    "to": "To",
+    "rate": "Rate (%)",
+    "addSegment": "Add period",
+    "remove": "Remove",
+    "hint": "Periods must fully cover the deposit term with no gaps or overlaps."
+  },
+  "additions": {
+    "title": "Additional contributions",
+    "type": "Contribution type",
+    "none": "None",
+    "recurring": "Recurring (fixed amount each period)",
+    "oneTime": "One-time (specific dates)",
+    "amount": "Amount",
+    "frequency": "Frequency",
+    "date": "Date",
+    "tax": "Income tax (%)",
+    "taxPlaceholder": "default",
+    "addItem": "Add contribution",
+    "remove": "Remove",
+    "recurringFrequency": {
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "annual": "Annual"
+    }
+  },
+  "withdrawals": {
+    "title": "Withdrawals",
+    "type": "Withdrawal type",
+    "none": "None",
+    "recurring": "Recurring (fixed amount each period)",
+    "oneTime": "One-time (specific dates)",
+    "amount": "Amount",
+    "frequency": "Frequency",
+    "date": "Date",
+    "addItem": "Add withdrawal",
+    "remove": "Remove",
+    "recurringFrequency": {
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "annual": "Annual"
+    }
+  },
+  "results": {
+    "title": "Results",
+    "finalBalance": "Total amount",
+    "totalIncome": "Net income",
+    "totalContributions": "Total contributions",
+    "totalWithdrawals": "Total withdrawals",
+    "totalTax": "Total tax",
+    "totalGrossInterest": "Gross interest",
+    "effectiveRate": "Effective annual rate",
+    "totalRate": "Total rate (whole term)",
+    "totalAnnualRate": "Total annual rate",
+    "term": "Term ({{days}} days)",
+    "endDate": "Maturity date",
+    "monthlyTitle": "Detailed breakdown",
+    "detailPeriod": "Detail period",
+    "detailPeriodOptions": {
+      "changes": "Balance changes only",
+      "daily": "Day by day",
+      "monthly": "Month by month",
+      "quarterly": "Quarter by quarter",
+      "annual": "Year by year"
+    },
+    "chartTitle": "Balance growth",
+    "exportCsv": "Export CSV",
+    "table": {
+      "month": "Month",
+      "period": "Period",
+      "openingBalance": "Opening balance",
+      "added": "Added",
+      "withdrawn": "Withdrawn",
+      "interestAccrued": "Interest accrued",
+      "taxPaid": "Tax paid",
+      "capitalized": "Capitalized",
+      "closingBalance": "Closing balance"
+    }
+  },
+  "error": {
+    "title": "Cannot calculate",
+    "amountPositive": "Deposit amount must be greater than zero.",
+    "termPositive": "Term must be greater than zero.",
+    "termTooShort": "The term is too short.",
+    "taxRange": "Income tax must be between 0 and 100%.",
+    "ratePositive": "Interest rate cannot be negative.",
+    "floatEmpty": "Add at least one variable-rate period.",
+    "floatRange": "Period {{from}} – {{to}} has an end date before its start date.",
+    "floatOverlap": "Variable-rate periods overlap near {{date}}.",
+    "floatGap": "Variable-rate periods leave a gap starting {{date}}."
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "ru": "Russian"
+  },
+  "theme": {
+    "switchTo": {
+      "dark": "Switch to dark theme",
+      "light": "Switch to light theme"
+    }
+  }
+}

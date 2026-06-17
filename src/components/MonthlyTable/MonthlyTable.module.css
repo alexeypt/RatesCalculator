@@ -1,0 +1,36 @@
+.wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.table th,
+.table td {
+    padding: 0.55rem 0.7rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.table thead th {
+    background: var(--panel-2);
+    position: sticky;
+    top: 0;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.table td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.table tbody tr:hover {
+    background: rgba(56, 189, 248, 0.06);
+}

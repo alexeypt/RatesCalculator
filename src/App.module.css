@@ -1,0 +1,124 @@
+.app {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    width: 100%;
+}
+
+@media (max-width: 520px) {
+    .app {
+        padding: 1rem;
+    }
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.6rem;
+}
+
+.headerControls {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-shrink: 0;
+}
+
+.subtitle {
+    margin: 0.25rem 0 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+.main {
+    display: grid;
+    grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+@media (max-width: 920px) {
+    .main {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.resultHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.resultHeader h2 {
+    margin: 0;
+}
+
+.detailControls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 1.5rem 0 0.5rem;
+    flex-wrap: wrap;
+}
+
+.detailControls h3 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.detailPeriod {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+    min-width: 0;
+}
+
+.detailPeriod select {
+    min-width: 160px;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.95rem;
+}
+
+.chartHeading {
+    margin: 1.4rem 0 0.7rem;
+    font-size: 1.05rem;
+}
+
+.errorBox {
+    background: rgba(248, 113, 113, 0.12);
+    border: 1px solid var(--danger);
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    color: var(--danger);
+}
+
+.errorBox p {
+    margin: 0.4rem 0 0;
+    color: var(--text);
+}
+
+.placeholder {
+    color: var(--muted);
+}

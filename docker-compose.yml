@@ -1,0 +1,12 @@
+services:
+  deposit-calculator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: deposit-calculator:latest
+    container_name: deposit-calculator
+    restart: unless-stopped
+    ports:
+      # host:container — set HOST_PORT to any free port on your VPS (defaults to 8080).
+      # Your Nginx reverse proxy should proxy_pass to http://127.0.0.1:${HOST_PORT}.
+      - "127.0.0.1:${HOST_PORT:-8080}:80"
