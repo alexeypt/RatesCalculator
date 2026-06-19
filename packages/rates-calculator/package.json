@@ -1,12 +1,13 @@
 {
   "name": "rates-calculator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Framework-agnostic engine for calculating returns on interest-bearing instruments (bank deposits today, bonds later).",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "exports": {
     ".": {
