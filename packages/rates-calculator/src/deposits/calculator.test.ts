@@ -206,6 +206,26 @@ describe('calculateDeposit - rate metrics', () => {
         const expected = Math.pow(1 + 0.12 / 12, 12) - 1;
         expect(r.totalRate).toBeCloseTo(expected, 3);
     });
+
+    it('is not diluted by contributions spread across the term (money-weighted)', () => {
+        // 15% nominal, monthly capitalization => 16.08% effective. Adding large monthly
+        // contributions must not drag the reported rate down toward zero; the money-weighted
+        // return stays at the deposit's effective yield regardless of when money arrives.
+        const r = calculateDeposit(
+            baseInput({
+                amount: 1000,
+                fixedRate: 15,
+                capitalization: true,
+                capFrequency: 'monthly',
+                additionType: 'recurring',
+                recurringAddition: { amount: 10000, frequency: 'monthly' }
+            })
+        );
+        const effective = Math.pow(1 + 0.15 / 12, 12) - 1;
+        expect(r.totalContributions).toBeGreaterThan(100000);
+        expect(r.effectiveAnnualRate).toBeGreaterThan(0.15);
+        expect(r.effectiveAnnualRate).toBeCloseTo(effective, 2);
+    });
 });
 
 describe('calculateDeposit - additions', () => {

@@ -379,10 +379,25 @@ export function calculateDeposit(input: DepositInput): DepositResult {
     const totalReturned = roundMoney(finalBalance + withdrawalsTotal);
     const totalIncome = roundMoney(totalReturned - contributionsTotal);
     const termYears = totalDays / 365;
-    const growthFactor = contributionsTotal > 0 ? totalReturned / contributionsTotal : 1;
+
+    // Money-weighted (IRR) return: the effective annual rate that discounts every cash
+    // flow to a zero net present value. Unlike a simple final/contributed growth factor,
+    // this is unaffected by *when* contributions arrive, so spreading deposits over the
+    // term no longer dilutes the reported rate. For a single lump sum it reduces exactly
+    // to (finalBalance / principal)^(1/years) - 1.
+    // Investor cash flows: contributions are outflows (negative), withdrawals are inflows
+    // (positive), and the final balance is returned at the end of the term. Each daily row
+    // index equals its day offset from the start, so time in years is index / 365.
+    const cashFlows: CashFlow[] = [];
+    for (let i = 0; i < dailyDetails.length; i++) {
+        const net = roundMoney(dailyDetails[i].withdrawn - dailyDetails[i].added);
+        if (net !== 0) cashFlows.push({ years: i / 365, amount: net });
+    }
+    cashFlows.push({ years: termYears, amount: finalBalance });
+
     const effectiveAnnualRate
-        = contributionsTotal > 0 && totalDays > 0 ? Math.pow(growthFactor, 1 / termYears) - 1 : 0;
-    const totalRate = growthFactor - 1;
+        = contributionsTotal > 0 && totalDays > 0 ? computeIRR(cashFlows) : 0;
+    const totalRate = Math.pow(1 + effectiveAnnualRate, termYears) - 1;
     const totalAnnualRate = termYears > 0 ? totalRate / termYears : 0;
 
     return {
@@ -400,6 +415,47 @@ export function calculateDeposit(input: DepositInput): DepositResult {
         endDate: toISODate(end),
         dailyDetails
     };
+}
+
+/** A single investor cash flow used by the money-weighted (IRR) return calculation. */
+interface CashFlow {
+    /** Time of the cash flow in years from the deposit start. */
+    years: number;
+    /** Signed amount: positive when the investor receives money, negative when they pay in. */
+    amount: number;
+}
+
+/**
+ * Internal rate of return: the annual rate r for which the cash flows discount to a zero
+ * net present value. Solved by bisection, which is robust for the monotonic NPV produced
+ * by deposit-style flows (money paid in early, larger amounts received later).
+ */
+function computeIRR(cashFlows: CashFlow[]): number {
+    const npv = (rate: number): number => {
+        let sum = 0;
+        for (const cf of cashFlows) sum += cf.amount / Math.pow(1 + rate, cf.years);
+        return sum;
+    };
+
+    // npv decreases as the rate rises. Bracket the root between a rate just above -100%
+    // (where discounting inflates future inflows, so npv is positive) and a high rate
+    // (where only the t=0 outflow survives, so npv is negative).
+    let low = -0.9999;
+    let high = 1;
+    let guard = 0;
+    while (npv(high) > 0 && guard < 200) {
+        high *= 2;
+        guard++;
+    }
+    if (npv(high) > 0) return high;
+
+    for (let i = 0; i < 200; i++) {
+        const mid = (low + high) / 2;
+        if (npv(mid) > 0) low = mid;
+        else high = mid;
+        if (high - low < 1e-12) break;
+    }
+    return (low + high) / 2;
 }
 
 /** Group key for aggregating daily details into coarser periods. */
