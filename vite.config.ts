@@ -11,9 +11,9 @@ export default defineConfig({
             registerType: 'autoUpdate',
             includeAssets: ['favicon.svg'],
             manifest: {
-                name: 'Deposit Calculator',
-                short_name: 'Deposit',
-                description: 'Bank deposit interest calculator',
+                name: 'Rates Calculator',
+                short_name: 'Rates',
+                description: 'Bank deposit and bond yield calculator',
                 theme_color: '#0f172a',
                 background_color: '#0f172a',
                 display: 'standalone',

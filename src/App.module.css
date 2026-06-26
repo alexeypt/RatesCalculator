@@ -37,6 +37,37 @@
     font-size: 0.95rem;
 }
 
+.modeTabs {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    margin-bottom: 1.25rem;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.modeTab {
+    appearance: none;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.5rem 1.1rem;
+    border-radius: 8px;
+}
+
+.modeTab:hover {
+    color: var(--text);
+}
+
+.modeTabActive {
+    background: var(--accent-strong);
+    color: #fff;
+}
+
 .main {
     display: grid;
     grid-template-columns: minmax(0, 440px) minmax(0, 1fr);

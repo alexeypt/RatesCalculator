@@ -18,13 +18,13 @@ export function MonthlyTable({ details, period }: Props) {
                 <thead>
                     <tr>
                         <th>{t('results.table.period')}</th>
-                        <th>{t('results.table.openingBalance')}</th>
-                        <th>{t('results.table.added')}</th>
-                        <th>{t('results.table.withdrawn')}</th>
-                        <th>{t('results.table.interestAccrued')}</th>
-                        <th>{t('results.table.taxPaid')}</th>
-                        <th>{t('results.table.capitalized')}</th>
-                        <th>{t('results.table.closingBalance')}</th>
+                        <th className={styles.num}>{t('results.table.openingBalance')}</th>
+                        <th className={styles.num}>{t('results.table.added')}</th>
+                        <th className={styles.num}>{t('results.table.withdrawn')}</th>
+                        <th className={styles.num}>{t('results.table.interestAccrued')}</th>
+                        <th className={styles.num}>{t('results.table.taxPaid')}</th>
+                        <th className={styles.num}>{t('results.table.capitalized')}</th>
+                        <th className={styles.num}>{t('results.table.closingBalance')}</th>
                     </tr>
                 </thead>
                 <tbody>

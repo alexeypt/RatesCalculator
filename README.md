@@ -1,8 +1,8 @@
-# Deposit Calculator
+# Rates Calculator
 
-A fast, privacy-friendly **bank deposit calculator** built as an installable Progressive Web App (PWA). It simulates deposit growth day by day and shows period-by-period details, an effective annual rate, and a growth chart. All calculations run entirely in your browser — no data ever leaves your device.
+A fast, privacy-friendly **deposit and bond calculator** built as an installable Progressive Web App (PWA). Switch between a **Deposits** mode (day-by-day growth, period details, effective annual rate, growth chart) and a **Bonds** mode (yields, duration, cash-flow schedule and chart). All calculations run entirely in your browser — no data ever leaves your device.
 
-## Features
+## Deposit features
 
 - **Compound interest** with a day-by-day simulation using the actual/actual day-count convention (365/366, leap-year aware).
 - **Flexible capitalization** frequencies: daily, weekly, twice a month, three times a month, monthly, quarterly, semi-annual, annual — all anchored to the deposit's start date.
@@ -12,6 +12,17 @@ A fast, privacy-friendly **bank deposit calculator** built as an installable Pro
 - **Income tax** handling, applied per capitalization event (with sensible defaults for long-term deposits).
 - **Detail views** — "balance changes only" (default), day, month, quarter, or year, plus CSV export.
 - **Summary metrics** — final balance, net income, total tax, effective annual rate, total rate, and total annual rate.
+
+## Bond features
+
+- **Regular and currency-indexed bonds** — indexed bonds use the currency-equivalent method (coupons and nominal convert at the base index, the price at the current index; yields are computed in the index currency).
+- **Coupon schedule** — generate dates from a first-coupon date + frequency, or import a JSON array of dates; coupon amounts are derived automatically from the rate, nominal and a start-anchored actual/actual day count.
+- **Yield metrics** — simple yield to maturity, effective yield (IRR), current yield, and Macaulay duration, plus an estimated cash flow to maturity.
+- **Cash-flow schedule and chart**, with a nominal / index-equivalent breakdown for indexed bonds, plus CSV export.
+- **Saved bonds** — store named bond configurations in the browser (localStorage) and export/import them as JSON.
+
+## Shared
+
 - **Internationalization** — English and Russian, with locale-aware number and date formatting.
 - **Light / dark theme** with persistence.
 - **Installable PWA** — works offline and can be added to a phone's home screen.
@@ -20,7 +31,7 @@ A fast, privacy-friendly **bank deposit calculator** built as an installable Pro
 
 - [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
 - [Vite 6](https://vite.dev/) build tooling and [vite-plugin-pwa](https://vite-pwa-org.netlify.app/)
-- [Recharts](https://recharts.org/) for the growth chart
+- [Recharts](https://recharts.org/) for the growth and cash-flow charts
 - [date-fns](https://date-fns.org/) for date math
 - [react-i18next](https://react.i18next.com/) for localization
 - [Vitest](https://vitest.dev/) for unit tests (calculation engine)
@@ -109,11 +120,12 @@ packages/
   rates-calculator/   Reusable, framework-agnostic calculation library
     src/core/         Money rounding, date/term helpers, shared types
     src/deposits/     Deposit calculator, capitalization, validation + unit tests
-src/                  Web app (deposit-calculator-web)
-  components/         React UI components (form, editors, results, chart, table)
-  utils/              Formatting, CSV export, theme helpers
+    src/bonds/        Bond calculator (yields, duration, cash flows), coupon helpers + unit tests
+src/                  Web app (rates-calculator-web)
+  features/           Deposit and bond calculator containers (one per mode)
+  components/         React UI components (forms, editors, results, charts, tables)
+  utils/              Formatting, CSV export, bond storage, theme helpers
   i18n/               i18next setup and en/ru translation resources
-  types/              Shared app-level TypeScript types
 public/               Static assets (favicon, PWA icons, robots.txt)
 Dockerfile            Multi-stage build (Node → Nginx)
 nginx.conf            SPA-aware Nginx config (history fallback, caching, gzip)
@@ -123,16 +135,19 @@ The app imports the library via its package name:
 
 ```ts
 import { calculateDeposit } from 'rates-calculator/deposits';
+import { calculateBond } from 'rates-calculator/bonds';
 import { parseISODate } from 'rates-calculator';
 ```
 
 ## How the engine works
 
-Interest is accrued day by day. Each day's interest is `balance × annualRate / daysInYear`, where `daysInYear` is 365 or 366 depending on the calendar year. Accrued interest is compounded (and taxed) at each capitalization boundary, which is anchored to the deposit's start date — e.g. a deposit opened on 7 May with monthly capitalization compounds on 7 June, 7 July, and so on. Contributions and withdrawals are applied at the start of the relevant day. Money is rounded half-up to two decimals at every accrual/capitalization event.
+**Deposits.** Interest is accrued day by day. Each day's interest is `balance × annualRate / daysInYear`, where `daysInYear` is 365 or 366 depending on the calendar year. Accrued interest is compounded (and taxed) at each capitalization boundary, which is anchored to the deposit's start date — e.g. a deposit opened on 7 May with monthly capitalization compounds on 7 June, 7 July, and so on. Contributions and withdrawals are applied at the start of the relevant day. Money is rounded half-up to two decimals at every accrual/capitalization event.
+
+**Bonds.** Each coupon amount is `nominal × rate × yearFraction(periodStart, paymentDate)` using the actual/actual day count, with the first period anchored to the bond start date so stub periods are exact. Simple yield to maturity follows the standard `((N + ΣC − P) / P) / years` formula; effective yield is the IRR of the dated cash flows (matching Excel's `ЧИСТВНДОХ` / XIRR); Macaulay duration is the present-value-weighted time to each flow. For currency-indexed bonds, coupons and nominal are converted at the base index and the price at the current index, and all yields are computed in the index currency.
 
 ## Testing
 
-The calculation engine is covered by unit tests (rounding, leap years, each capitalization frequency, fixed and variable rates, contributions, withdrawals, per-contribution tax, and detail aggregation).
+The calculation engine is covered by unit tests — deposits (rounding, leap years, each capitalization frequency, fixed and variable rates, contributions, withdrawals, per-contribution tax, and detail aggregation) and bonds (day-count helpers, coupon generation, simple and effective yield against worked examples, the indexed currency-equivalent method, and validation).
 
 ```bash
 npm test

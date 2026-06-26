@@ -50,6 +50,7 @@ body {
 /* Generic responsive two-column grid used by several editors. */
 .field-grid {
   display: grid;
+  align-items: end;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.9rem;
 }
@@ -118,6 +119,14 @@ legend {
   font-size: 0.9rem;
   padding: 0.6rem 1rem;
   font-weight: 600;
+}
+
+.primary-btn:disabled,
+.secondary-btn:disabled,
+.add-btn:disabled,
+.remove-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .primary-btn {

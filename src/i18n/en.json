@@ -1,7 +1,98 @@
 {
   "app": {
-    "title": "Deposit Calculator",
+    "title": "Rates Calculator",
     "subtitle": "Calculate interest, income and effective rate"
+  },
+  "modes": {
+    "deposits": "Deposits",
+    "bonds": "Bonds"
+  },
+  "deposits": {
+    "subtitle": "Calculate interest, income and effective rate"
+  },
+  "bonds": {
+    "subtitle": "Calculate yields, current yield and duration for bonds",
+    "form": {
+      "bondType": "Bond type",
+      "bondTypeRegular": "Regular",
+      "bondTypeIndexed": "Indexed (to a currency rate, etc.)",
+      "nominal": "Nominal (face value)",
+      "purchasePrice": "Purchase price",
+      "startDate": "Bond start date (interest accrual)",
+      "settlementDate": "Purchase / settlement date",
+      "maturityDate": "Maturity date",
+      "couponRate": "Coupon rate (% per annum)",
+      "purchaseTitle": "Purchase",
+      "parametersTitle": "Parameters",
+      "indexTitle": "Indexation",
+      "indexHint": "Coupons & nominal scale with the base index; the price is converted at the current index. Yields are computed in the index currency.",
+      "baseIndex": "Base index at bond start (ER₀)",
+      "currentIndex": "Current index (ER now)",
+      "calculate": "Calculate"
+    },
+    "coupons": {
+      "title": "Coupon schedule",
+      "generateTitle": "Generate dates by frequency",
+      "firstDate": "First coupon date",
+      "frequency": "Frequency",
+      "frequencyOptions": {
+        "monthly": "Monthly",
+        "quarterly": "Quarterly",
+        "semiAnnual": "Semi-annual",
+        "annual": "Annual"
+      },
+      "generate": "Generate",
+      "generateHint": "Generates payment dates up to the maturity date above. Coupon amounts are computed automatically from the rate, nominal and the bond start date.",
+      "genMissingDates": "Set the first coupon date and the maturity date first.",
+      "genFailed": "Could not generate the dates.",
+      "importTitle": "Import JSON (dates)",
+      "import": "Import",
+      "jsonInvalid": "Invalid JSON. Expected an array of dates, e.g. [\"2026-06-17\", \"2026-09-17\"].",
+      "empty": "No coupon dates yet. Generate by frequency or import JSON.",
+      "listTitle": "Coupon dates ({{count}})",
+      "date": "Date",
+      "remove": "Remove",
+      "addRow": "Add date"
+    },
+    "results": {
+      "title": "Results",
+      "effectiveYtm": "Effective yield",
+      "simpleYtm": "Yield to maturity",
+      "currentYield": "Current yield",
+      "duration": "Macaulay duration (years)",
+      "couponSum": "Remaining coupons",
+      "priceGain": "Price gain (N − P)",
+      "totalIncome": "Total income",
+      "cashFlowTotal": "Estimated cash flow",
+      "effectivePrice": "Price",
+      "effectiveNominal": "Nominal",
+      "maturityDate": "Maturity date",
+      "years": "years",
+      "dualSuffix": "(nominal / equiv.)",
+      "exportCsv": "Export CSV",
+      "chartTitle": "Cash flow",
+      "cashFlowTitle": "Cash-flow schedule"
+    },
+    "table": {
+      "date": "Date",
+      "days": "Days",
+      "coupon": "Coupon",
+      "principal": "Principal",
+      "total": "Total",
+      "equivalent": "Equivalent"
+    },
+    "saved": {
+      "load": "Saved bonds",
+      "selectPlaceholder": "Select a saved bond…",
+      "delete": "Delete",
+      "name": "Configuration name",
+      "namePlaceholder": "e.g. Aigenis Op51",
+      "save": "Save",
+      "update": "Update",
+      "export": "Export all",
+      "import": "Import",
+      "importError": "Could not import the file."
+    }
   },
   "form": {
     "amount": "Deposit amount",
@@ -122,7 +213,17 @@
     "floatEmpty": "Add at least one variable-rate period.",
     "floatRange": "Period {{from}} – {{to}} has an end date before its start date.",
     "floatOverlap": "Variable-rate periods overlap near {{date}}.",
-    "floatGap": "Variable-rate periods leave a gap starting {{date}}."
+    "floatGap": "Variable-rate periods leave a gap starting {{date}}.",
+    "bond": {
+      "nominalPositive": "Nominal value must be greater than zero.",
+      "pricePositive": "Purchase price must be greater than zero.",
+      "ratePositive": "Coupon rate cannot be negative.",
+      "maturityAfterSettlement": "Maturity date must be after the purchase date.",
+      "startBeforeMaturity": "Bond start date must be before maturity.",
+      "indexPositive": "Index values must be greater than zero.",
+      "couponAfterMaturity": "A coupon is dated after maturity ({{date}}).",
+      "couponBeforeStart": "A coupon ({{date}}) is on or before the bond start date."
+    }
   },
   "language": {
     "label": "Language",

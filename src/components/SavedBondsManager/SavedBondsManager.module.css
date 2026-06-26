@@ -1,0 +1,49 @@
+.manager {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0.9rem;
+    margin-bottom: 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--panel-2);
+}
+
+.row {
+    display: flex;
+    gap: 0.6rem;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+/* This manager sits outside the <form>, so the global form-control rules don't apply. */
+.manager label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+    min-width: 0;
+}
+
+.manager input,
+.manager select {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.grow {
+    flex: 1 1 160px;
+    min-width: 0;
+}
+
+.fileInput {
+    display: none;
+}
+
+.error {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--danger);
+}

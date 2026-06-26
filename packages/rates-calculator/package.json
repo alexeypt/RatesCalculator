@@ -1,7 +1,7 @@
 {
   "name": "rates-calculator",
-  "version": "1.0.1",
-  "description": "Framework-agnostic engine for calculating returns on interest-bearing instruments (bank deposits today, bonds later).",
+  "version": "1.2.0",
+  "description": "Framework-agnostic engine for calculating returns on interest-bearing instruments (bank deposits and bonds).",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -17,6 +17,10 @@
     "./deposits": {
       "types": "./dist/deposits/index.d.ts",
       "import": "./dist/deposits/index.js"
+    },
+    "./bonds": {
+      "types": "./dist/bonds/index.d.ts",
+      "import": "./dist/bonds/index.js"
     }
   },
   "main": "./dist/index.js",
@@ -33,6 +37,9 @@
   "keywords": [
     "finance",
     "deposit",
+    "bonds",
+    "yield",
+    "duration",
     "compound-interest",
     "savings",
     "calculator"

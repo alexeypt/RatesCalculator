@@ -1,0 +1,86 @@
+.tools {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    margin-bottom: 0.4rem;
+}
+
+.tool {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.7rem;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+}
+
+.toolTitle {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.toolRow {
+    display: flex;
+    gap: 0.6rem;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.toolRow label {
+    flex: 1 1 130px;
+    min-width: 0;
+}
+
+.json {
+    width: 100%;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+    resize: vertical;
+}
+
+.hint {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+.error {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--danger);
+}
+
+.collapsible {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.7rem;
+}
+
+.summary {
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    padding: 0.2rem 0;
+}
+
+.collapsible .list,
+.collapsible > div {
+    margin-top: 0.6rem;
+}
+
+.dateRow {
+    display: flex;
+    gap: 0.6rem;
+    align-items: end;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel-2);
+}
+
+.dateRow label {
+    flex: 1 1 auto;
+    min-width: 0;
+}

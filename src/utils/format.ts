@@ -11,11 +11,19 @@ export function resolveLocale(lng: string): string {
     return localeMap[base] ?? 'en-US';
 }
 
+/**
+ * Collapse values that round to zero at the given decimal precision to a clean 0, so a tiny
+ * negative (e.g. an IRR solver returning -2e-13) does not render as "-0.00".
+ */
+function snapZero(value: number, digits: number): number {
+    return Math.abs(value) < 0.5 * Math.pow(10, -digits) ? 0 : value;
+}
+
 export function formatMoney(value: number, lng: string): string {
     return new Intl.NumberFormat(resolveLocale(lng), {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-    }).format(value);
+    }).format(snapZero(value, 2));
 }
 
 export function formatPercent(fraction: number, lng: string): string {
@@ -23,7 +31,21 @@ export function formatPercent(fraction: number, lng: string): string {
         style: 'percent',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-    }).format(fraction);
+    // The percent style shows 2 decimals of value·100, i.e. 4 decimals of the fraction.
+    }).format(snapZero(fraction, 4));
+}
+
+/** Format a plain number with a fixed number of decimals (default 2). */
+export function formatNumber(value: number, lng: string, digits = 2): string {
+    return new Intl.NumberFormat(resolveLocale(lng), {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+    }).format(snapZero(value, digits));
+}
+
+/** Format a percent value that is already expressed in percent (e.g. 15.2 → "15.20%"). */
+export function formatPercentValue(value: number, lng: string): string {
+    return `${formatNumber(value, lng)}%`;
 }
 
 /** Format an ISO yyyy-MM month string into a localized "Month YYYY" label. */

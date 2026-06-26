@@ -5,6 +5,21 @@ All notable changes to this package are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-06-26
+
+### Added
+- Bond API (`rates-calculator/bonds`): `calculateBond` for regular and currency-indexed
+  coupon bonds, computing simple yield to maturity, effective yield (IRR / XIRR), current
+  yield, Macaulay duration, totals, and a per-payment cash-flow schedule. Indexed bonds use
+  the currency-equivalent method — coupons and nominal convert at the base index (ER₀) and the
+  price at the current index (ER_current), with yields computed in the index currency.
+- Coupon helpers: `generateCouponDates` (regular schedule from a first date + frequency) and
+  `computeCouponAmounts` (per-period amounts from rate, nominal, and a start-anchored
+  actual/actual day count, so stub first periods are correct). Coupon precision is 4 decimals
+  for indexed bonds and 2 for regular; headline metrics round to 2.
+- Core helpers (`rates-calculator`): `roundTo` (configurable decimals), `daysBetween`, and
+  `yearFractionActualActual` (the `t365/365 + t366/366` day-count convention).
+
 ## [1.0.1] - 2026-06-19
 
 ### Fixed
