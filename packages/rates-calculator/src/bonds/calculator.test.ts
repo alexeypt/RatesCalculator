@@ -12,6 +12,8 @@ function baseBond(overrides: Partial<BondInput> = {}): BondInput {
         settlementDate: '2026-01-01',
         maturityDate: '2027-01-01',
         couponRatePercent: 10,
+        couponTaxPercent: 0,
+        purchaseCosts: 0,
         couponDates: [],
         baseIndex: 1,
         currentIndex: 1,
@@ -92,7 +94,7 @@ describe('computeCouponAmounts', () => {
  * coupons on the 20th, matures 30.07.2027. With these dates the derived coupons reproduce the
  * doc's published amounts (8.88 / 9.07 / 9.07 / 8.98 / 8.88 / 9.07 / 3.95) to the cent.
  */
-function aigenisOp10(): BondInput {
+function aigenisOp10(overrides: Partial<BondInput> = {}): BondInput {
     return baseBond({
         nominal: 200,
         purchasePrice: 212,
@@ -108,7 +110,8 @@ function aigenisOp10(): BondInput {
             '2027-03-20',
             '2027-06-20',
             '2027-07-30'
-        ]
+        ],
+        ...overrides
     });
 }
 
@@ -198,6 +201,31 @@ describe('calculateBond — indexed currency-equivalent method', () => {
     it('reports an index-currency equivalent below the quote coupon (divided by ER0)', () => {
         const coupon = indexedBond.cashFlows[0];
         expect(coupon.couponEquivalent).toBeCloseTo(coupon.coupon / base, 2);
+    });
+});
+
+describe('calculateBond — coupon tax and purchase costs', () => {
+    it('lowers yields when a coupon tax applies', () => {
+        const taxed = calculateBond(aigenisOp10({ couponTaxPercent: 13 }));
+        const untaxed = calculateBond(aigenisOp10());
+        expect(taxed.simpleYtmPercent).toBeLessThan(untaxed.simpleYtmPercent);
+        expect(taxed.effectiveYtmPercent).toBeLessThan(untaxed.effectiveYtmPercent);
+        expect(taxed.currentYieldPercent).toBeLessThan(untaxed.currentYieldPercent);
+    });
+
+    it('lowers yields and net income when purchase costs apply', () => {
+        const withCosts = calculateBond(aigenisOp10({ purchaseCosts: 5 }));
+        const without = calculateBond(aigenisOp10());
+        expect(withCosts.simpleYtmPercent).toBeLessThan(without.simpleYtmPercent);
+        expect(withCosts.effectiveYtmPercent).toBeLessThan(without.effectiveYtmPercent);
+        // Net income drops by exactly the entry cost (no tax here).
+        expect(withCosts.totalIncome).toBeCloseTo(without.totalIncome - 5, 2);
+    });
+
+    it('matches the no-tax / no-cost result when both are zero', () => {
+        const a = calculateBond(aigenisOp10({ couponTaxPercent: 0, purchaseCosts: 0 }));
+        const b = calculateBond(aigenisOp10());
+        expect(a.effectiveYtmPercent).toBeCloseTo(b.effectiveYtmPercent, 10);
     });
 });
 

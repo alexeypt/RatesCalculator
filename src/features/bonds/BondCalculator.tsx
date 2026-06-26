@@ -41,6 +41,8 @@ const defaultInput: BondInput = {
     settlementDate: start,
     maturityDate: addYearsISO(start, 3),
     couponRatePercent: 7,
+    couponTaxPercent: 0,
+    purchaseCosts: 0,
     couponDates: [],
     baseIndex: 1,
     currentIndex: 1

@@ -174,32 +174,41 @@ export function calculateBond(input: BondInput): BondResult {
         couponSumQuote += c.amount;
     }
 
+    // Income tax applies to coupons only (not the redemption of principal). One-time purchase
+    // costs are paid today, so they convert at the same divisor as the price and add to the
+    // amount invested (doc formula 2: net income / (investment + entry costs)).
+    const netFactor = 1 - input.couponTaxPercent / 100;
+    const effectiveCosts = input.purchaseCosts / priceDiv;
+    const invested = effectivePrice + effectiveCosts;
+    const couponSumNet = couponSum * netFactor;
+
     const priceGain = effectiveNominal - effectivePrice;
-    const totalIncome = couponSum + priceGain;
+    // Net income = after-tax coupons + capital gain − entry costs.
+    const totalIncome = couponSumNet + priceGain - effectiveCosts;
 
     // Quote-currency totals (equal to the equivalents for regular bonds). Price gain in the
     // quote currency is the conservative base case (no indexation gain on the principal).
     const priceGainQuote = input.nominal - input.purchasePrice;
-    const totalIncomeQuote = couponSumQuote + priceGainQuote;
+    const totalIncomeQuote = couponSumQuote * netFactor + priceGainQuote - input.purchaseCosts;
 
-    // Simple yield to maturity (doc formula 8): non-compounded annualized return.
+    // Simple yield to maturity (doc formula 8 / 2): net income over the amount invested.
     const simpleYtmPercent
-        = yearsToMaturity > 0
-            ? ((effectiveNominal + couponSum - effectivePrice) / effectivePrice / yearsToMaturity) * 100
+        = yearsToMaturity > 0 && invested > 0
+            ? ((effectiveNominal + couponSumNet - invested) / invested / yearsToMaturity) * 100
             : 0;
 
-    // Effective yield (IRR of the cash flows in the calculation currency), Actual/365 to match
-    // Excel ЧИСТВНДОХ.
+    // Effective yield (IRR of the after-tax cash flows in the calculation currency), Actual/365
+    // to match Excel ЧИСТВНДОХ. Coupons are taxed; the principal redemption is not.
     const timedFlows: TimedFlow[] = cashFlows.map((cf) => ({
         years: cf.daysFromSettlement / 365,
-        amount: cf.totalEquivalent
+        amount: cf.couponEquivalent * netFactor + cf.principalEquivalent
     }));
-    const effectiveYtm = computeIRR(effectivePrice, timedFlows);
+    const effectiveYtm = computeIRR(invested, timedFlows);
     const effectiveYtmPercent = effectiveYtm * 100;
 
-    // Current yield: one year of coupon at the nominal rate over the price.
-    const annualCoupon = effectiveNominal * (input.couponRatePercent / 100);
-    const currentYieldPercent = effectivePrice > 0 ? (annualCoupon / effectivePrice) * 100 : 0;
+    // Current yield: one year of after-tax coupon over the amount invested.
+    const annualCoupon = effectiveNominal * (input.couponRatePercent / 100) * netFactor;
+    const currentYieldPercent = invested > 0 ? (annualCoupon / invested) * 100 : 0;
 
     // Macaulay duration (years): present-value-weighted average time to each cash flow.
     const macaulayDurationYears = computeMacaulayDuration(effectiveYtm, timedFlows);
@@ -279,6 +288,12 @@ function validate(input: BondInput): void {
     }
     if (input.couponRatePercent < 0) {
         throw new BondValidationError('error.bond.ratePositive');
+    }
+    if (input.couponTaxPercent < 0 || input.couponTaxPercent > 100) {
+        throw new BondValidationError('error.bond.taxRange');
+    }
+    if (input.purchaseCosts < 0) {
+        throw new BondValidationError('error.bond.costsPositive');
     }
 
     const start = parseISODate(input.startDate);

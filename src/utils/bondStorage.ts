@@ -13,10 +13,14 @@ const bondInputSchema = z.object({
     settlementDate: z.string(),
     maturityDate: z.string(),
     couponRatePercent: z.number(),
+    // Defaulted so bonds saved before these fields existed still load.
+    couponTaxPercent: z.number().default(0),
+    purchaseCosts: z.number().default(0),
     couponDates: z.array(z.string()),
     baseIndex: z.number(),
     currentIndex: z.number()
-}) satisfies z.ZodType<BondInput>;
+    // Input is `unknown` (not BondInput) because defaulted fields make those keys optional on input.
+}) satisfies z.ZodType<BondInput, z.ZodTypeDef, unknown>;
 
 const savedBondSchema = z.object({
     name: z.string(),

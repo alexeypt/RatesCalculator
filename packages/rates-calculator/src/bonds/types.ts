@@ -34,6 +34,10 @@ export interface BondInput {
     maturityDate: string;
     /** Annual coupon rate in percent, e.g. 7 for 7%. */
     couponRatePercent: number;
+    /** Income tax on coupon income, in percent (0 = none). Not applied to the principal. */
+    couponTaxPercent: number;
+    /** One-time costs to buy the bond (broker/exchange fees), in the quote currency. */
+    purchaseCosts: number;
     /**
    * Coupon payment dates, ISO yyyy-MM-dd. Each coupon amount is derived from the rate, nominal,
    * and the actual/actual day count of its period (previous coupon date, or startDate for the first).

@@ -120,6 +120,31 @@ export function BondForm({ value, onChange, onSubmit, couponListCollapseSignal }
                             onChange={(e) => set('settlementDate', e.target.value)}
                         />
                     </label>
+
+                    <label>
+                        <span>{t('bonds.form.purchaseCosts')}</span>
+                        <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={value.purchaseCosts}
+                            onFocus={(e) => e.currentTarget.select()}
+                            onChange={(e) => set('purchaseCosts', Number(e.target.value))}
+                        />
+                    </label>
+
+                    <label>
+                        <span>{t('bonds.form.couponTax')}</span>
+                        <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            value={value.couponTaxPercent}
+                            onFocus={(e) => e.currentTarget.select()}
+                            onChange={(e) => set('couponTaxPercent', Number(e.target.value))}
+                        />
+                    </label>
                 </div>
             </fieldset>
 
