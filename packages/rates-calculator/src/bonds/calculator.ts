@@ -99,6 +99,33 @@ export function computeCouponAmounts(params: ComputeCouponAmountsParams): Coupon
 }
 
 /**
+ * Coupons paid strictly after settlement, in the quote currency. For tokens the first such
+ * coupon is prorated from the purchase date (the buyer earns only from then), whereas for bonds
+ * the buyer receives the full current-period coupon.
+ */
+function remainingCoupons(input: BondInput, settlement: Date, couponDecimals: number): { date: Date; amount: number }[] {
+    const all = computeCouponAmounts({
+        nominal: input.nominal,
+        couponRatePercent: input.couponRatePercent,
+        startDate: input.startDate,
+        couponDates: input.couponDates,
+        decimals: couponDecimals
+    });
+    const rem = all
+        .map((c) => ({ date: parseISODate(c.date), amount: c.amount }))
+        .filter((c) => c.date.getTime() > settlement.getTime());
+
+    if (input.instrument === 'token' && rem.length > 0) {
+        const first = rem[0];
+        first.amount = roundTo(
+            input.nominal * (input.couponRatePercent / 100) * yearFractionActualActual(settlement, first.date),
+            couponDecimals
+        );
+    }
+    return rem;
+}
+
+/**
  * Price (quote currency) for a target simple YTM — the inverse of the simple-YTM formula
  * (doc formula 9): `P = (N + ΣC) / (1 + Y/100 · years)`, evaluated in the calculation currency
  * and converted back at the price divisor. Rounded to a clean money amount.
@@ -127,17 +154,8 @@ export function computePriceFromYtm(input: BondInput, ytmPercent: number): numbe
     const maturity = parseISODate(input.maturityDate);
     const couponDecimals = indexed ? INDEXED_COUPON_DECIMALS : REGULAR_COUPON_DECIMALS;
 
-    const coupons = computeCouponAmounts({
-        nominal: input.nominal,
-        couponRatePercent: input.couponRatePercent,
-        startDate: input.startDate,
-        couponDates: input.couponDates,
-        decimals: couponDecimals
-    });
     let couponSumEquiv = 0;
-    for (const c of coupons) {
-        if (parseISODate(c.date).getTime() > settlement.getTime()) couponSumEquiv += c.amount / flowDiv;
-    }
+    for (const c of remainingCoupons(input, settlement, couponDecimals)) couponSumEquiv += c.amount / flowDiv;
     const years = yearFractionActualActual(settlement, maturity);
     return priceFromYtm(input.nominal / flowDiv, couponSumEquiv, years, ytmPercent, priceDiv);
 }
@@ -164,18 +182,8 @@ export function calculateBond(input: BondInput): BondResult {
     const effectiveNominal = input.nominal / flowDiv;
     const couponDecimals = indexed ? INDEXED_COUPON_DECIMALS : REGULAR_COUPON_DECIMALS;
 
-    // Derive every coupon amount from the rate and the start-anchored period day counts, then keep
-    // only coupons paid strictly after settlement (earlier ones belong to the previous holder).
-    const allCoupons = computeCouponAmounts({
-        nominal: input.nominal,
-        couponRatePercent: input.couponRatePercent,
-        startDate: input.startDate,
-        couponDates: input.couponDates,
-        decimals: couponDecimals
-    });
-    const remaining = allCoupons
-        .map((c) => ({ date: parseISODate(c.date), amount: c.amount }))
-        .filter((c) => c.date.getTime() > settlement.getTime());
+    // Coupons paid after settlement (tokens prorate the first one from the purchase date).
+    const remaining = remainingCoupons(input, settlement, couponDecimals);
 
     const yearsToMaturity = yearFractionActualActual(settlement, maturity);
     const daysToMaturity = daysBetween(settlement, maturity);

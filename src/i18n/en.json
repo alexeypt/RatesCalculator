@@ -5,10 +5,22 @@
   },
   "modes": {
     "deposits": "Deposits",
-    "bonds": "Bonds"
+    "bonds": "Bonds",
+    "tokens": "Tokens"
   },
   "deposits": {
     "subtitle": "Calculate interest, income and effective rate"
+  },
+  "tokens": {
+    "subtitle": "Calculate yields, current yield and duration for debt tokens",
+    "form": {
+      "note": "Debt tokens accrue income only from the purchase date — the part of the current period before your purchase belongs to the seller."
+    },
+    "saved": {
+      "load": "Saved tokens",
+      "selectPlaceholder": "Select a saved token…",
+      "namePlaceholder": "e.g. BEREG (USD 715)"
+    }
   },
   "bonds": {
     "subtitle": "Calculate yields, current yield and duration for bonds",

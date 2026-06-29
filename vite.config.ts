@@ -13,7 +13,7 @@ export default defineConfig({
             manifest: {
                 name: 'Rates Calculator',
                 short_name: 'Rates',
-                description: 'Bank deposit and bond yield calculator',
+                description: 'Bank deposit, bond and debt token yield calculator',
                 theme_color: '#0f172a',
                 background_color: '#0f172a',
                 display: 'standalone',

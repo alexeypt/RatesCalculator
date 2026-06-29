@@ -6,6 +6,13 @@
  */
 export type BondType = 'regular' | 'indexed';
 
+/**
+ * Instrument kind. Tokens behave like regular bonds except the buyer earns income only from the
+ * purchase date, so the first coupon after settlement is prorated from that date (the part
+ * between the previous coupon and the purchase belongs to the seller).
+ */
+export type BondInstrument = 'bond' | 'token';
+
 /** Frequency presets for generating a coupon date schedule. */
 export type CouponFrequency = 'monthly' | 'quarterly' | 'semiAnnual' | 'annual';
 
@@ -25,6 +32,8 @@ export interface CouponPeriod {
 }
 
 export interface BondInput {
+    /** Whether this is a bond or a debt token (affects only the first coupon's accrual). */
+    instrument: BondInstrument;
     bondType: BondType;
     /** Nominal (face) value per bond, in the quote currency. */
     nominal: number;

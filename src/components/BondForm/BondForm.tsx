@@ -7,11 +7,22 @@ interface Props {
     value: BondInput;
     onChange: (value: BondInput) => void;
     onSubmit: () => void;
-    /** Changes whenever a saved bond is loaded, signalling the coupon list to collapse. */
+    /** Changes whenever a saved config is loaded, signalling the coupon list to collapse. */
     couponListCollapseSignal?: number;
+    /** Whether the indexed bond-type option is offered (false for tokens). */
+    allowIndexed?: boolean;
+    /** Optional note shown at the top of the form (e.g. how token income accrues). */
+    note?: string;
 }
 
-export function BondForm({ value, onChange, onSubmit, couponListCollapseSignal }: Props) {
+export function BondForm({
+    value,
+    onChange,
+    onSubmit,
+    couponListCollapseSignal,
+    allowIndexed = true,
+    note
+}: Props) {
     const { t } = useTranslation();
 
     const set = <K extends keyof BondInput>(key: K, v: BondInput[K]) => {
@@ -26,29 +37,33 @@ export function BondForm({ value, onChange, onSubmit, couponListCollapseSignal }
                 onSubmit();
             }}
         >
-            <fieldset>
-                <legend>{t('bonds.form.bondType')}</legend>
-                <div className={styles.radioGroup}>
-                    <label className={styles.radio}>
-                        <input
-                            type="radio"
-                            name="bondType"
-                            checked={value.bondType === 'regular'}
-                            onChange={() => set('bondType', 'regular' as BondType)}
-                        />
-                        <span>{t('bonds.form.bondTypeRegular')}</span>
-                    </label>
-                    <label className={styles.radio}>
-                        <input
-                            type="radio"
-                            name="bondType"
-                            checked={value.bondType === 'indexed'}
-                            onChange={() => set('bondType', 'indexed' as BondType)}
-                        />
-                        <span>{t('bonds.form.bondTypeIndexed')}</span>
-                    </label>
-                </div>
-            </fieldset>
+            {note && <p className={styles.hint}>{note}</p>}
+
+            {allowIndexed && (
+                <fieldset>
+                    <legend>{t('bonds.form.bondType')}</legend>
+                    <div className={styles.radioGroup}>
+                        <label className={styles.radio}>
+                            <input
+                                type="radio"
+                                name="bondType"
+                                checked={value.bondType === 'regular'}
+                                onChange={() => set('bondType', 'regular' as BondType)}
+                            />
+                            <span>{t('bonds.form.bondTypeRegular')}</span>
+                        </label>
+                        <label className={styles.radio}>
+                            <input
+                                type="radio"
+                                name="bondType"
+                                checked={value.bondType === 'indexed'}
+                                onChange={() => set('bondType', 'indexed' as BondType)}
+                            />
+                            <span>{t('bonds.form.bondTypeIndexed')}</span>
+                        </label>
+                    </div>
+                </fieldset>
+            )}
 
             <fieldset>
                 <legend>{t('bonds.form.parametersTitle')}</legend>

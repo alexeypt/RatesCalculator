@@ -10,8 +10,9 @@ import { BondForm } from '@/components/BondForm/BondForm';
 import { BondResultsSummary } from '@/components/BondResultsSummary/BondResultsSummary';
 import { BondCashFlowChart } from '@/components/BondCashFlowChart/BondCashFlowChart';
 import { BondCashFlowTable } from '@/components/BondCashFlowTable/BondCashFlowTable';
-import { SavedBondsManager } from '@/components/SavedBondsManager/SavedBondsManager';
+import { SavedInstrumentsManager } from '@/components/SavedInstrumentsManager/SavedInstrumentsManager';
 import { downloadBlob } from '@/utils/download';
+import { bondStore, tokenStore } from '@/utils/instrumentStorage';
 import styles from '@/App.module.css';
 
 function todayISO(): string {
@@ -31,33 +32,44 @@ function addYearsISO(iso: string, years: number): string {
     return `${yy}-${mm}-${dd}`;
 }
 
-const start = todayISO();
+function makeDefaultInput(instrument: 'bond' | 'token'): BondInput {
+    const start = todayISO();
+    return {
+        instrument,
+        bondType: 'regular',
+        nominal: 100,
+        priceMode: 'price',
+        purchasePrice: 100,
+        targetYtmPercent: 8,
+        startDate: start,
+        settlementDate: start,
+        maturityDate: addYearsISO(start, 3),
+        couponRatePercent: 7,
+        couponTaxPercent: 0,
+        quantity: 1,
+        purchaseCosts: 0,
+        couponDates: [],
+        baseIndex: 1,
+        currentIndex: 1
+    };
+}
 
-const defaultInput: BondInput = {
-    bondType: 'regular',
-    nominal: 100,
-    priceMode: 'price',
-    purchasePrice: 100,
-    targetYtmPercent: 8,
-    startDate: start,
-    settlementDate: start,
-    maturityDate: addYearsISO(start, 3),
-    couponRatePercent: 7,
-    couponTaxPercent: 0,
-    quantity: 1,
-    purchaseCosts: 0,
-    couponDates: [],
-    baseIndex: 1,
-    currentIndex: 1
-};
+interface Props {
+    instrument: 'bond' | 'token';
+}
 
-export function BondCalculator() {
+/** Shared calculator UI for bonds and debt tokens; tokens hide indexation and use their own store. */
+export function InstrumentCalculator({ instrument }: Props) {
     const { t, i18n } = useTranslation();
-    const [input, setInput] = useState<BondInput>(defaultInput);
+    const isToken = instrument === 'token';
+    const prefix = isToken ? 'tokens' : 'bonds';
+    const store = isToken ? tokenStore : bondStore;
+
+    const [input, setInput] = useState<BondInput>(() => makeDefaultInput(instrument));
     const [result, setResult] = useState<BondResult | null>(null);
     const [errorCode, setErrorCode] = useState<string | null>(null);
     const [errorParams, setErrorParams] = useState<Record<string, string | number> | undefined>();
-    // Bumped whenever a saved bond is loaded, to collapse the coupon list in the form.
+    // Bumped whenever a saved config is loaded, to collapse the coupon list in the form.
     const [loadSignal, setLoadSignal] = useState(0);
 
     const handleLoad = (loaded: BondInput) => {
@@ -67,8 +79,7 @@ export function BondCalculator() {
 
     const handleCalculate = () => {
         try {
-            const res = calculateBond(input);
-            setResult(res);
+            setResult(calculateBond(input));
             setErrorCode(null);
             setErrorParams(undefined);
         } catch (err) {
@@ -112,18 +123,27 @@ export function BondCalculator() {
         const csv = [header, ...rows].map((r) => r.join(',')).join('\r\n');
         // Prepend BOM so Excel reads UTF-8 correctly.
         const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-        downloadBlob(blob, 'bond-cashflows.csv');
+        downloadBlob(blob, `${instrument}-cashflows.csv`);
     };
 
     return (
         <>
             <section className={styles.panel}>
-                <SavedBondsManager current={input} onLoad={handleLoad} />
+                <SavedInstrumentsManager
+                    store={store}
+                    current={input}
+                    onLoad={handleLoad}
+                    loadLabel={t(`${prefix}.saved.load`)}
+                    selectPlaceholder={t(`${prefix}.saved.selectPlaceholder`)}
+                    namePlaceholder={t(`${prefix}.saved.namePlaceholder`)}
+                />
                 <BondForm
                     value={input}
                     onChange={setInput}
                     onSubmit={handleCalculate}
                     couponListCollapseSignal={loadSignal}
+                    allowIndexed={!isToken}
+                    note={isToken ? t('tokens.form.note') : undefined}
                 />
             </section>
 
@@ -154,7 +174,7 @@ export function BondCalculator() {
                 )}
 
                 {!result && !errorMessage && (
-                    <p className={styles.placeholder}>{t('bonds.subtitle')}</p>
+                    <p className={styles.placeholder}>{t(`${prefix}.subtitle`)}</p>
                 )}
             </section>
         </>

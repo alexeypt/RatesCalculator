@@ -1,6 +1,6 @@
 # Rates Calculator
 
-A fast, privacy-friendly **deposit and bond calculator** built as an installable Progressive Web App (PWA). Switch between a **Deposits** mode (day-by-day growth, period details, effective annual rate, growth chart) and a **Bonds** mode (yields, duration, cash-flow schedule and chart). All calculations run entirely in your browser — no data ever leaves your device.
+A fast, privacy-friendly **deposit, bond and debt-token calculator** built as an installable Progressive Web App (PWA). Switch between a **Deposits** mode (day-by-day growth, period details, effective annual rate, growth chart), a **Bonds** mode (yields, duration, cash-flow schedule and chart), and a **Tokens** mode for debt tokens. All calculations run entirely in your browser — no data ever leaves your device.
 
 ## Deposit features
 
@@ -17,9 +17,16 @@ A fast, privacy-friendly **deposit and bond calculator** built as an installable
 
 - **Regular and currency-indexed bonds** — indexed bonds use the currency-equivalent method (coupons and nominal convert at the base index, the price at the current index; yields are computed in the index currency).
 - **Coupon schedule** — generate dates from a first-coupon date + frequency, or import a JSON array of dates; coupon amounts are derived automatically from the rate, nominal and a start-anchored actual/actual day count.
+- **Price from a target yield** — enter a target simple yield to maturity and the price is derived (the inverse of the simple-YTM formula).
+- **Coupon income tax and purchase costs** — optional coupon tax and one-time lot fees (spread across the quantity) folded into the yields and net income.
 - **Yield metrics** — simple yield to maturity, effective yield (IRR), current yield, and Macaulay duration, plus an estimated cash flow to maturity.
 - **Cash-flow schedule and chart**, with a nominal / index-equivalent breakdown for indexed bonds, plus CSV export.
 - **Saved bonds** — store named bond configurations in the browser (localStorage) and export/import them as JSON.
+
+## Token features
+
+- **Debt tokens** reuse the bond engine and UI (coupon schedule, purchase inputs, tax, costs, price-from-yield, all metrics), with a separate saved list and export/import.
+- **Key difference** — a token holder earns income only from the purchase date, so the first coupon is prorated from then (the part of the current period before the purchase belongs to the seller). Indexation is not offered for tokens.
 
 ## Shared
 
@@ -120,11 +127,11 @@ packages/
   rates-calculator/   Reusable, framework-agnostic calculation library
     src/core/         Money rounding, date/term helpers, shared types
     src/deposits/     Deposit calculator, capitalization, validation + unit tests
-    src/bonds/        Bond calculator (yields, duration, cash flows), coupon helpers + unit tests
+    src/bonds/        Bond & token calculator (yields, duration, cash flows), coupon helpers + unit tests
 src/                  Web app (rates-calculator-web)
-  features/           Deposit and bond calculator containers (one per mode)
+  features/           Deposit and instrument (bond/token) calculator containers
   components/         React UI components (forms, editors, results, charts, tables)
-  utils/              Formatting, CSV export, bond storage, theme helpers
+  utils/              Formatting, CSV export, instrument storage, theme helpers
   i18n/               i18next setup and en/ru translation resources
 public/               Static assets (favicon, PWA icons, robots.txt)
 Dockerfile            Multi-stage build (Node → Nginx)
@@ -143,11 +150,13 @@ import { parseISODate } from 'rates-calculator';
 
 **Deposits.** Interest is accrued day by day. Each day's interest is `balance × annualRate / daysInYear`, where `daysInYear` is 365 or 366 depending on the calendar year. Accrued interest is compounded (and taxed) at each capitalization boundary, which is anchored to the deposit's start date — e.g. a deposit opened on 7 May with monthly capitalization compounds on 7 June, 7 July, and so on. Contributions and withdrawals are applied at the start of the relevant day. Money is rounded half-up to two decimals at every accrual/capitalization event.
 
-**Bonds.** Each coupon amount is `nominal × rate × yearFraction(periodStart, paymentDate)` using the actual/actual day count, with the first period anchored to the bond start date so stub periods are exact. Simple yield to maturity follows the standard `((N + ΣC − P) / P) / years` formula; effective yield is the IRR of the dated cash flows (matching Excel's `ЧИСТВНДОХ` / XIRR); Macaulay duration is the present-value-weighted time to each flow. For currency-indexed bonds, coupons and nominal are converted at the base index and the price at the current index, and all yields are computed in the index currency.
+**Bonds.** Each coupon amount is `nominal × rate × yearFraction(periodStart, paymentDate)` using the actual/actual day count, with the first period anchored to the bond start date so stub periods are exact. Simple yield to maturity follows the standard `((N + ΣC − P) / P) / years` formula; effective yield is the IRR of the dated cash flows (matching Excel's `ЧИСТВНДОХ` / XIRR); Macaulay duration is the present-value-weighted time to each flow. Coupon tax and one-time purchase costs reduce net income and the yields, and the price can be derived from a target yield (the inverse formula). For currency-indexed bonds, coupons and nominal are converted at the base index and the price at the current index, and all yields are computed in the index currency.
+
+**Tokens.** Debt tokens reuse the bond engine with one difference: the buyer earns income only from the purchase date, so the first coupon after settlement is prorated from that date instead of covering the whole current period.
 
 ## Testing
 
-The calculation engine is covered by unit tests — deposits (rounding, leap years, each capitalization frequency, fixed and variable rates, contributions, withdrawals, per-contribution tax, and detail aggregation) and bonds (day-count helpers, coupon generation, simple and effective yield against worked examples, the indexed currency-equivalent method, and validation).
+The calculation engine is covered by unit tests — deposits (rounding, leap years, each capitalization frequency, fixed and variable rates, contributions, withdrawals, per-contribution tax, and detail aggregation) and bonds/tokens (day-count helpers, coupon generation, simple and effective yield against worked examples, the indexed currency-equivalent method, price-from-yield, coupon tax / purchase costs, token first-coupon proration, and validation).
 
 ```bash
 npm test

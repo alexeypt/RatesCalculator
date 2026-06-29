@@ -5,6 +5,7 @@ import { daysBetween, parseISODate, roundTo, yearFractionActualActual } from '..
 
 function baseBond(overrides: Partial<BondInput> = {}): BondInput {
     return {
+        instrument: 'bond',
         bondType: 'regular',
         nominal: 100,
         priceMode: 'price',
@@ -259,6 +260,35 @@ describe('price from target YTM (doc formula 9)', () => {
         const result = calculateBond(sale({ priceMode: 'ytm', targetYtmPercent: 14 }));
         expect(result.simpleYtmPercent).toBeCloseTo(14, 1);
         expect(result.priceQuote).toBeCloseTo(computePriceFromYtm(sale(), 14), 2);
+    });
+});
+
+describe('calculateBond — debt tokens', () => {
+    // A token bought mid-period: the buyer forgoes income between the previous coupon and the
+    // purchase date, so the first coupon is smaller than the equivalent bond's.
+    const couponDates = ['2026-04-30', '2026-05-31', '2026-06-30'];
+    const common = {
+        nominal: 1000,
+        couponRatePercent: 12,
+        startDate: '2026-03-31',
+        settlementDate: '2026-04-15',
+        maturityDate: '2026-06-30',
+        couponDates
+    } as const;
+
+    it('prorates the first coupon from the purchase date', () => {
+        const token = calculateBond(baseBond({ ...common, instrument: 'token', purchasePrice: 1000 }));
+        // First coupon accrues 2026-04-15 → 2026-04-30 (15 days): 1000·0.12·15/365.
+        const expectedFirst = 1000 * 0.12 * (15 / 365);
+        expect(token.cashFlows[0].coupon).toBeCloseTo(expectedFirst, 2);
+    });
+
+    it('gives the token holder a smaller first coupon than the equivalent bond', () => {
+        const token = calculateBond(baseBond({ ...common, instrument: 'token', purchasePrice: 1000 }));
+        const bond = calculateBond(baseBond({ ...common, instrument: 'bond', purchasePrice: 1000 }));
+        expect(token.cashFlows[0].coupon).toBeLessThan(bond.cashFlows[0].coupon);
+        // Later coupons (full periods) are identical.
+        expect(token.cashFlows[1].coupon).toBeCloseTo(bond.cashFlows[1].coupon, 2);
     });
 });
 

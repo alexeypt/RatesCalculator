@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DepositCalculator } from '@/features/deposits/DepositCalculator';
-import { BondCalculator } from '@/features/bonds/BondCalculator';
+import { InstrumentCalculator } from '@/features/instruments/InstrumentCalculator';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher/LanguageSwitcher';
 import { ThemeSwitcher } from '@/components/ThemeSwitcher/ThemeSwitcher';
 import { applyTheme, getInitialTheme, type Theme } from '@/utils/theme';
 import styles from '@/App.module.css';
 
-type CalculatorMode = 'deposits' | 'bonds';
+type CalculatorMode = 'deposits' | 'bonds' | 'tokens';
 
-const MODES: CalculatorMode[] = ['deposits', 'bonds'];
+const MODES: CalculatorMode[] = ['deposits', 'bonds', 'tokens'];
 const MODE_STORAGE_KEY = 'rc.mode';
 
 function getInitialMode(): CalculatorMode {
     const stored = localStorage.getItem(MODE_STORAGE_KEY);
-    return stored === 'bonds' || stored === 'deposits' ? stored : 'deposits';
+    return (MODES as string[]).includes(stored ?? '') ? (stored as CalculatorMode) : 'deposits';
 }
 
 export default function App() {
@@ -59,7 +59,9 @@ export default function App() {
             </div>
 
             <main className={styles.main}>
-                {mode === 'deposits' ? <DepositCalculator /> : <BondCalculator />}
+                {mode === 'deposits' && <DepositCalculator />}
+                {mode === 'bonds' && <InstrumentCalculator instrument="bond" />}
+                {mode === 'tokens' && <InstrumentCalculator instrument="token" />}
             </main>
         </div>
     );

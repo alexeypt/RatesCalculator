@@ -1,26 +1,32 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { BondInput } from 'rates-calculator/bonds';
-import {
-    deleteBond,
-    exportBonds,
-    importBonds,
-    listBonds,
-    saveBond,
-    type SavedBond
-} from '@/utils/bondStorage';
-import styles from '@/components/SavedBondsManager/SavedBondsManager.module.css';
+import type { InstrumentStore, SavedInstrument } from '@/utils/instrumentStorage';
+import styles from '@/components/SavedInstrumentsManager/SavedInstrumentsManager.module.css';
 
 interface Props {
-    /** The bond config currently in the form, used when saving. */
+    /** Storage backing this manager (bonds and tokens use separate stores). */
+    store: InstrumentStore;
+    /** The config currently in the form, used when saving. */
     current: BondInput;
     /** Load a saved config into the form. */
     onLoad: (input: BondInput) => void;
+    /** Instrument-specific labels; the action buttons reuse the shared bonds.saved.* strings. */
+    loadLabel: string;
+    selectPlaceholder: string;
+    namePlaceholder: string;
 }
 
-export function SavedBondsManager({ current, onLoad }: Props) {
+export function SavedInstrumentsManager({
+    store,
+    current,
+    onLoad,
+    loadLabel,
+    selectPlaceholder,
+    namePlaceholder
+}: Props) {
     const { t } = useTranslation();
-    const [bonds, setBonds] = useState<SavedBond[]>(() => listBonds());
+    const [items, setItems] = useState<SavedInstrument[]>(() => store.list());
     const [selected, setSelected] = useState('');
     const [name, setName] = useState('');
     const [importError, setImportError] = useState<string | null>(null);
@@ -30,32 +36,32 @@ export function SavedBondsManager({ current, onLoad }: Props) {
         setSelected(value);
         // Prefill the name so saving overwrites (updates) the selected configuration.
         setName(value);
-        const bond = bonds.find((b) => b.name === value);
-        if (bond) onLoad(bond.input);
+        const item = items.find((i) => i.name === value);
+        if (item) onLoad(item.input);
     };
 
     const handleSave = () => {
         const trimmed = name.trim();
         if (!trimmed) return;
-        setBonds(saveBond(trimmed, current));
+        setItems(store.save(trimmed, current));
         setSelected(trimmed);
     };
 
     const handleDelete = () => {
         if (!selected) return;
-        setBonds(deleteBond(selected));
+        setItems(store.remove(selected));
         setSelected('');
         setName('');
     };
 
     // Saving over an existing name updates it rather than creating a new entry.
-    const isUpdate = bonds.some((b) => b.name === name.trim());
+    const isUpdate = items.some((i) => i.name === name.trim());
 
     const handleImport = async (file: File) => {
         setImportError(null);
         try {
             const text = await file.text();
-            setBonds(importBonds(text));
+            setItems(store.import(text));
         } catch {
             setImportError(t('bonds.saved.importError'));
         } finally {
@@ -67,12 +73,12 @@ export function SavedBondsManager({ current, onLoad }: Props) {
         <div className={styles.manager}>
             <div className={styles.row}>
                 <label className={styles.grow}>
-                    <span>{t('bonds.saved.load')}</span>
+                    <span>{loadLabel}</span>
                     <select value={selected} onChange={(e) => handleSelect(e.target.value)}>
-                        <option value="">{t('bonds.saved.selectPlaceholder')}</option>
-                        {bonds.map((b) => (
-                            <option key={b.name} value={b.name}>
-                                {b.name}
+                        <option value="">{selectPlaceholder}</option>
+                        {items.map((i) => (
+                            <option key={i.name} value={i.name}>
+                                {i.name}
                             </option>
                         ))}
                     </select>
@@ -93,7 +99,7 @@ export function SavedBondsManager({ current, onLoad }: Props) {
                     <input
                         type="text"
                         value={name}
-                        placeholder={t('bonds.saved.namePlaceholder')}
+                        placeholder={namePlaceholder}
                         onChange={(e) => setName(e.target.value)}
                     />
                 </label>
@@ -108,7 +114,7 @@ export function SavedBondsManager({ current, onLoad }: Props) {
             </div>
 
             <div className={styles.row}>
-                <button type="button" className="secondary-btn" onClick={exportBonds}>
+                <button type="button" className="secondary-btn" onClick={store.exportAll}>
                     {t('bonds.saved.export')}
                 </button>
                 <button type="button" className="secondary-btn" onClick={() => fileRef.current?.click()}>

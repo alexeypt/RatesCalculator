@@ -5,6 +5,27 @@ All notable changes to this package are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-06-29
+
+### Added
+- Debt tokens: `BondInput.instrument` (`'bond' | 'token'`). Tokens are computed like regular
+  bonds except the buyer earns income only from the purchase date, so the first coupon after
+  settlement is prorated from that date (the part of the current period before the purchase
+  belongs to the seller). All other metrics reuse the bond engine.
+- Price from a target yield: `computePriceFromYtm(input, ytmPercent)` and `BondInput.priceMode`
+  (`'price' | 'ytm'`) + `targetYtmPercent` — derive the purchase price from a target simple YTM
+  (doc formula 9, the inverse of the simple-YTM formula).
+- Coupon income tax (`couponTaxPercent`, applied to coupons only) and one-time purchase costs
+  for the whole lot (`purchaseCosts` spread across `quantity`), both folded into the yields and
+  net income (doc formula 2). `BondResult` gained quote-currency totals (`couponSumQuote`,
+  `priceGainQuote`, `totalIncomeQuote`, `nominalQuote`, `priceQuote`) for the nominal / index
+  dual display.
+
+### Changed
+- Coupon amounts now round to 4 decimals for indexed bonds and 2 for regular bonds; headline
+  metrics remain at 2. `roundTo` gained the precision used here.
+- `BondResult.totalIncome` is now net of coupon tax and purchase costs.
+
 ## [1.2.0] - 2026-06-26
 
 ### Added
