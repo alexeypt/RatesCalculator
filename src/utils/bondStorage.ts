@@ -8,13 +8,17 @@ const EXPORT_VERSION = 1;
 const bondInputSchema = z.object({
     bondType: z.enum(['regular', 'indexed']),
     nominal: z.number(),
+    // Defaulted so bonds saved before these fields existed still load.
+    priceMode: z.enum(['price', 'ytm']).default('price'),
     purchasePrice: z.number(),
+    targetYtmPercent: z.number().default(0),
     startDate: z.string(),
     settlementDate: z.string(),
     maturityDate: z.string(),
     couponRatePercent: z.number(),
     // Defaulted so bonds saved before these fields existed still load.
     couponTaxPercent: z.number().default(0),
+    quantity: z.number().default(1),
     purchaseCosts: z.number().default(0),
     couponDates: z.array(z.string()),
     baseIndex: z.number(),

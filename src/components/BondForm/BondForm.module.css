@@ -27,3 +27,9 @@
     font-size: 0.8rem;
     color: var(--muted);
 }
+
+.purchaseSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}

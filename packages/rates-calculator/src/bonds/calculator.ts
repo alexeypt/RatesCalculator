@@ -98,6 +98,50 @@ export function computeCouponAmounts(params: ComputeCouponAmountsParams): Coupon
     return coupons;
 }
 
+/**
+ * Price (quote currency) for a target simple YTM — the inverse of the simple-YTM formula
+ * (doc formula 9): `P = (N + ΣC) / (1 + Y/100 · years)`, evaluated in the calculation currency
+ * and converted back at the price divisor. Rounded to a clean money amount.
+ */
+function priceFromYtm(
+    effectiveNominal: number,
+    couponSumEquiv: number,
+    years: number,
+    ytmPercent: number,
+    priceDiv: number
+): number {
+    const denom = 1 + (ytmPercent / 100) * years;
+    const effectivePrice = denom !== 0 ? (effectiveNominal + couponSumEquiv) / denom : 0;
+    return roundMoney(effectivePrice * priceDiv);
+}
+
+/**
+ * Compute the purchase price (quote currency) at which the bond yields the given simple YTM
+ * to maturity (doc formula 9). Coupons are derived the same way as {@link calculateBond}.
+ */
+export function computePriceFromYtm(input: BondInput, ytmPercent: number): number {
+    const indexed = input.bondType === 'indexed';
+    const flowDiv = indexed ? input.baseIndex : 1;
+    const priceDiv = indexed ? input.currentIndex : 1;
+    const settlement = parseISODate(input.settlementDate);
+    const maturity = parseISODate(input.maturityDate);
+    const couponDecimals = indexed ? INDEXED_COUPON_DECIMALS : REGULAR_COUPON_DECIMALS;
+
+    const coupons = computeCouponAmounts({
+        nominal: input.nominal,
+        couponRatePercent: input.couponRatePercent,
+        startDate: input.startDate,
+        couponDates: input.couponDates,
+        decimals: couponDecimals
+    });
+    let couponSumEquiv = 0;
+    for (const c of coupons) {
+        if (parseISODate(c.date).getTime() > settlement.getTime()) couponSumEquiv += c.amount / flowDiv;
+    }
+    const years = yearFractionActualActual(settlement, maturity);
+    return priceFromYtm(input.nominal / flowDiv, couponSumEquiv, years, ytmPercent, priceDiv);
+}
+
 /** A discounting cash flow: an amount at a time expressed in years from settlement. */
 interface TimedFlow {
     /** Years from settlement (Actual/365). */
@@ -118,7 +162,6 @@ export function calculateBond(input: BondInput): BondResult {
     const priceDiv = indexed ? input.currentIndex : 1;
 
     const effectiveNominal = input.nominal / flowDiv;
-    const effectivePrice = input.purchasePrice / priceDiv;
     const couponDecimals = indexed ? INDEXED_COUPON_DECIMALS : REGULAR_COUPON_DECIMALS;
 
     // Derive every coupon amount from the rate and the start-anchored period day counts, then keep
@@ -174,11 +217,22 @@ export function calculateBond(input: BondInput): BondResult {
         couponSumQuote += c.amount;
     }
 
-    // Income tax applies to coupons only (not the redemption of principal). One-time purchase
-    // costs are paid today, so they convert at the same divisor as the price and add to the
+    // The purchase price is either entered directly or derived from a target YTM (doc formula 9:
+    // the algebraic inverse of the simple-YTM formula). The derived price is rounded to a clean
+    // money amount, and effectivePrice is taken from that so downstream metrics use the real price.
+    const purchasePrice
+        = input.priceMode === 'ytm'
+            ? priceFromYtm(effectiveNominal, couponSum, yearsToMaturity, input.targetYtmPercent, priceDiv)
+            : input.purchasePrice;
+    const effectivePrice = purchasePrice / priceDiv;
+
+    // Income tax applies to coupons only (not the redemption of principal). Purchase costs are
+    // entered for the whole lot, so spread them across the bonds; the per-bond share is paid
+    // today in the quote currency and converts at the same divisor as the price, adding to the
     // amount invested (doc formula 2: net income / (investment + entry costs)).
     const netFactor = 1 - input.couponTaxPercent / 100;
-    const effectiveCosts = input.purchaseCosts / priceDiv;
+    const perBondCosts = input.quantity > 0 ? input.purchaseCosts / input.quantity : 0;
+    const effectiveCosts = perBondCosts / priceDiv;
     const invested = effectivePrice + effectiveCosts;
     const couponSumNet = couponSum * netFactor;
 
@@ -188,8 +242,8 @@ export function calculateBond(input: BondInput): BondResult {
 
     // Quote-currency totals (equal to the equivalents for regular bonds). Price gain in the
     // quote currency is the conservative base case (no indexation gain on the principal).
-    const priceGainQuote = input.nominal - input.purchasePrice;
-    const totalIncomeQuote = couponSumQuote * netFactor + priceGainQuote - input.purchaseCosts;
+    const priceGainQuote = input.nominal - purchasePrice;
+    const totalIncomeQuote = couponSumQuote * netFactor + priceGainQuote - perBondCosts;
 
     // Simple yield to maturity (doc formula 8 / 2): net income over the amount invested.
     const simpleYtmPercent
@@ -226,7 +280,7 @@ export function calculateBond(input: BondInput): BondResult {
         priceGainQuote: roundMoney(priceGainQuote),
         totalIncomeQuote: roundMoney(totalIncomeQuote),
         nominalQuote: roundMoney(input.nominal),
-        priceQuote: roundMoney(input.purchasePrice),
+        priceQuote: roundMoney(purchasePrice),
         simpleYtmPercent,
         effectiveYtmPercent,
         currentYieldPercent,
@@ -283,7 +337,7 @@ function validate(input: BondInput): void {
     if (!(input.nominal > 0)) {
         throw new BondValidationError('error.bond.nominalPositive');
     }
-    if (!(input.purchasePrice > 0)) {
+    if (input.priceMode === 'price' && !(input.purchasePrice > 0)) {
         throw new BondValidationError('error.bond.pricePositive');
     }
     if (input.couponRatePercent < 0) {
@@ -294,6 +348,9 @@ function validate(input: BondInput): void {
     }
     if (input.purchaseCosts < 0) {
         throw new BondValidationError('error.bond.costsPositive');
+    }
+    if (!(input.quantity > 0)) {
+        throw new BondValidationError('error.bond.quantityPositive');
     }
 
     const start = parseISODate(input.startDate);

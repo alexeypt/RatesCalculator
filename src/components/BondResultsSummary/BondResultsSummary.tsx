@@ -25,8 +25,8 @@ export function BondResultsSummary({ result }: Props) {
     const maturity = `${formatDate(result.maturityDate, lng)} (${formatNumber(result.yearsToMaturity, lng)} ${t('bonds.results.years')})`;
 
     const cards = [
-        { label: t('bonds.results.effectiveYtm'), value: formatPercentValue(result.effectiveYtmPercent, lng), accent: true },
-        { label: t('bonds.results.simpleYtm'), value: formatPercentValue(result.simpleYtmPercent, lng) },
+        { label: t('bonds.results.effectiveYtm'), value: formatPercentValue(result.effectiveYtmPercent, lng) },
+        { label: t('bonds.results.simpleYtm'), value: formatPercentValue(result.simpleYtmPercent, lng), accent: true },
         { label: t('bonds.results.currentYield'), value: formatPercentValue(result.currentYieldPercent, lng) },
         { label: t('bonds.results.duration'), value: formatNumber(result.macaulayDurationYears, lng) },
         { label: dualLabel('bonds.results.couponSum'), value: money(result.couponSumQuote, result.couponSum) },
@@ -39,7 +39,7 @@ export function BondResultsSummary({ result }: Props) {
                 result.couponSum + result.effectiveNominal
             )
         },
-        { label: dualLabel('bonds.results.effectivePrice'), value: money(result.priceQuote, result.effectivePrice) },
+        { label: dualLabel('bonds.results.effectivePrice'), value: money(result.priceQuote, result.effectivePrice), accent: true },
         { label: dualLabel('bonds.results.effectiveNominal'), value: money(result.nominalQuote, result.effectiveNominal) },
         { label: t('bonds.results.maturityDate'), value: maturity }
     ];

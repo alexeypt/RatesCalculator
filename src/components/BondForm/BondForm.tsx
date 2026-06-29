@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import type { BondInput, BondType } from 'rates-calculator/bonds';
+import type { BondInput, BondPriceMode, BondType } from 'rates-calculator/bonds';
 import { CouponScheduleEditor } from '@/components/CouponScheduleEditor/CouponScheduleEditor';
 import styles from '@/components/BondForm/BondForm.module.css';
 
@@ -99,52 +99,104 @@ export function BondForm({ value, onChange, onSubmit, couponListCollapseSignal }
 
             <fieldset>
                 <legend>{t('bonds.form.purchaseTitle')}</legend>
-                <div className="field-grid">
-                    <label>
-                        <span>{t('bonds.form.purchasePrice')}</span>
-                        <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={value.purchasePrice}
-                            onFocus={(e) => e.currentTarget.select()}
-                            onChange={(e) => set('purchasePrice', Number(e.target.value))}
-                        />
-                    </label>
+                <p className={styles.hint}>{t('bonds.form.purchaseHint')}</p>
 
-                    <label>
-                        <span>{t('bonds.form.settlementDate')}</span>
-                        <input
-                            type="date"
-                            value={value.settlementDate}
-                            onChange={(e) => set('settlementDate', e.target.value)}
-                        />
-                    </label>
+                <div className={styles.purchaseSection}>
+                    <div className={styles.radioGroup}>
+                        <label className={styles.radio}>
+                            <input
+                                type="radio"
+                                name="priceMode"
+                                checked={value.priceMode === 'price'}
+                                onChange={() => set('priceMode', 'price' as BondPriceMode)}
+                            />
+                            <span>{t('bonds.form.priceModePrice')}</span>
+                        </label>
+                        <label className={styles.radio}>
+                            <input
+                                type="radio"
+                                name="priceMode"
+                                checked={value.priceMode === 'ytm'}
+                                onChange={() => set('priceMode', 'ytm' as BondPriceMode)}
+                            />
+                            <span>{t('bonds.form.priceModeYtm')}</span>
+                        </label>
+                    </div>
 
-                    <label>
-                        <span>{t('bonds.form.purchaseCosts')}</span>
-                        <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={value.purchaseCosts}
-                            onFocus={(e) => e.currentTarget.select()}
-                            onChange={(e) => set('purchaseCosts', Number(e.target.value))}
-                        />
-                    </label>
+                    <div className="field-grid">
+                        {value.priceMode === 'price'
+                            ? (
+                                <label>
+                                    <span>{t('bonds.form.purchasePrice')}</span>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={value.purchasePrice}
+                                        onFocus={(e) => e.currentTarget.select()}
+                                        onChange={(e) => set('purchasePrice', Number(e.target.value))}
+                                    />
+                                </label>
+                            )
+                            : (
+                                <label>
+                                    <span>{t('bonds.form.targetYtm')}</span>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={value.targetYtmPercent}
+                                        onFocus={(e) => e.currentTarget.select()}
+                                        onChange={(e) => set('targetYtmPercent', Number(e.target.value))}
+                                    />
+                                </label>
+                            )}
 
-                    <label>
-                        <span>{t('bonds.form.couponTax')}</span>
-                        <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.01"
-                            value={value.couponTaxPercent}
-                            onFocus={(e) => e.currentTarget.select()}
-                            onChange={(e) => set('couponTaxPercent', Number(e.target.value))}
-                        />
-                    </label>
+                        <label>
+                            <span>{t('bonds.form.settlementDate')}</span>
+                            <input
+                                type="date"
+                                value={value.settlementDate}
+                                onChange={(e) => set('settlementDate', e.target.value)}
+                            />
+                        </label>
+
+                        <label>
+                            <span>{t('bonds.form.quantity')}</span>
+                            <input
+                                type="number"
+                                min="1"
+                                step="1"
+                                value={value.quantity}
+                                onFocus={(e) => e.currentTarget.select()}
+                                onChange={(e) => set('quantity', Number(e.target.value))}
+                            />
+                        </label>
+
+                        <label>
+                            <span>{t('bonds.form.purchaseCosts')}</span>
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={value.purchaseCosts}
+                                onFocus={(e) => e.currentTarget.select()}
+                                onChange={(e) => set('purchaseCosts', Number(e.target.value))}
+                            />
+                        </label>
+
+                        <label>
+                            <span>{t('bonds.form.couponTax')}</span>
+                            <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                step="0.01"
+                                value={value.couponTaxPercent}
+                                onFocus={(e) => e.currentTarget.select()}
+                                onChange={(e) => set('couponTaxPercent', Number(e.target.value))}
+                            />
+                        </label>
+                    </div>
                 </div>
             </fieldset>
 

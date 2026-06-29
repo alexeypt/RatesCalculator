@@ -9,6 +9,13 @@ export type BondType = 'regular' | 'indexed';
 /** Frequency presets for generating a coupon date schedule. */
 export type CouponFrequency = 'monthly' | 'quarterly' | 'semiAnnual' | 'annual';
 
+/**
+ * How the purchase price is determined.
+ * - price: the price is entered directly.
+ * - ytm: the price is computed from a target simple yield to maturity (doc formula 9).
+ */
+export type BondPriceMode = 'price' | 'ytm';
+
 /** A computed coupon: a payment date and its amount in the quote currency (base index = 1). */
 export interface CouponPeriod {
     /** Payment date, ISO yyyy-MM-dd. */
@@ -21,8 +28,12 @@ export interface BondInput {
     bondType: BondType;
     /** Nominal (face) value per bond, in the quote currency. */
     nominal: number;
-    /** Price paid per bond today, in the quote currency. */
+    /** How the purchase price is determined: entered directly or derived from a target YTM. */
+    priceMode: BondPriceMode;
+    /** Price paid per bond today, in the quote currency. Used when priceMode === 'price'. */
     purchasePrice: number;
+    /** Target simple yield to maturity (% per annum), used when priceMode === 'ytm'. */
+    targetYtmPercent: number;
     /**
    * Bond interest-accrual start date (placement start), ISO yyyy-MM-dd. Anchors the first
    * coupon period, so a long/short first (stub) coupon is computed correctly.
@@ -36,7 +47,12 @@ export interface BondInput {
     couponRatePercent: number;
     /** Income tax on coupon income, in percent (0 = none). Not applied to the principal. */
     couponTaxPercent: number;
-    /** One-time costs to buy the bond (broker/exchange fees), in the quote currency. */
+    /** Number of bonds in the lot; the purchase costs are spread across this many bonds. */
+    quantity: number;
+    /**
+   * One-time costs to buy the whole lot (broker/exchange fees), in the quote currency.
+   * The per-bond share (purchaseCosts / quantity) feeds the per-bond yield calculation.
+   */
     purchaseCosts: number;
     /**
    * Coupon payment dates, ISO yyyy-MM-dd. Each coupon amount is derived from the rate, nominal,

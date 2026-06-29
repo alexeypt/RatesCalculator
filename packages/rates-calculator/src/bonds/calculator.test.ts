@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateBond, computeCouponAmounts, generateCouponDates } from './calculator';
+import { calculateBond, computeCouponAmounts, computePriceFromYtm, generateCouponDates } from './calculator';
 import { BondValidationError, type BondInput } from './types';
 import { daysBetween, parseISODate, roundTo, yearFractionActualActual } from '../core';
 
@@ -7,12 +7,15 @@ function baseBond(overrides: Partial<BondInput> = {}): BondInput {
     return {
         bondType: 'regular',
         nominal: 100,
+        priceMode: 'price',
         purchasePrice: 100,
+        targetYtmPercent: 0,
         startDate: '2025-12-01',
         settlementDate: '2026-01-01',
         maturityDate: '2027-01-01',
         couponRatePercent: 10,
         couponTaxPercent: 0,
+        quantity: 1,
         purchaseCosts: 0,
         couponDates: [],
         baseIndex: 1,
@@ -222,10 +225,40 @@ describe('calculateBond — coupon tax and purchase costs', () => {
         expect(withCosts.totalIncome).toBeCloseTo(without.totalIncome - 5, 2);
     });
 
+    it('spreads lot purchase costs across the quantity', () => {
+        // 50 of costs over 10 bonds == 5 per bond.
+        const lot = calculateBond(aigenisOp10({ purchaseCosts: 50, quantity: 10 }));
+        const perBond = calculateBond(aigenisOp10({ purchaseCosts: 5, quantity: 1 }));
+        expect(lot.simpleYtmPercent).toBeCloseTo(perBond.simpleYtmPercent, 10);
+        expect(lot.totalIncome).toBeCloseTo(perBond.totalIncome, 10);
+    });
+
     it('matches the no-tax / no-cost result when both are zero', () => {
         const a = calculateBond(aigenisOp10({ couponTaxPercent: 0, purchaseCosts: 0 }));
         const b = calculateBond(aigenisOp10());
         expect(a.effectiveYtmPercent).toBeCloseTo(b.effectiveYtmPercent, 10);
+    });
+});
+
+describe('price from target YTM (doc formula 9)', () => {
+    // Aigenis Оп10 sold mid-life, doc Пример 9: at YTM 14% the price is ~212.85.
+    const sale = (overrides = {}) => aigenisOp10({ settlementDate: '2026-09-01', ...overrides });
+
+    it('inverts the simple YTM — pricing then yielding round-trips', () => {
+        const target = 14;
+        const price = computePriceFromYtm(sale(), target);
+        const result = calculateBond(sale({ purchasePrice: price }));
+        expect(result.simpleYtmPercent).toBeCloseTo(target, 1);
+    });
+
+    it('reproduces the doc figure (~212.85)', () => {
+        expect(computePriceFromYtm(sale(), 14)).toBeCloseTo(212.85, 0);
+    });
+
+    it('ytm price mode sets the price so the simple YTM matches the target', () => {
+        const result = calculateBond(sale({ priceMode: 'ytm', targetYtmPercent: 14 }));
+        expect(result.simpleYtmPercent).toBeCloseTo(14, 1);
+        expect(result.priceQuote).toBeCloseTo(computePriceFromYtm(sale(), 14), 2);
     });
 });
 
